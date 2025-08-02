@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vòng Quay May Mắn - Thu Thập Mã Giảm Giá</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .game-title {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .wheel-container {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+        }
+
+        .wheel {
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            position: relative;
+            border: 8px solid #333;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            background: #fff;
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            cursor: pointer;
+            overflow: hidden;
+            border: none;
+            margin: 0;
+            padding: 0;
+            /* Thêm một chút overlap để loại bỏ khoảng trống */
+            transform-origin: 100% 100%;
+            width: 50.5%;
+            height: 50.5%;
+        }
+
+        .segment-content {
+            position: absolute;
+            top: 0%;
+            left: 30%;
+            width: 70%;
+            height: 40%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transform: rotate(-25.7deg);
+            line-height: 1.2;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: 50%;
+            right: -15px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-right: 30px solid #ff4757;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #ff4757, #ff3742);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            z-index: 5;
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .spin-button {
+            background: linear-gradient(45deg, #ff4757, #ff3742);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        .spin-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.6);
+        }
+
+        .spin-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            min-height: 100px;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-content {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .coupon-code {
+            background: #ff4757;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin: 10px 0;
+            display: inline-block;
+            letter-spacing: 2px;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 5px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff4757;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .collected-coupons {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .coupon-item {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ff4757;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .animation-effect {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff4757;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: celebrate 2s ease-out forwards;
+        }
+
+        @keyframes celebrate {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .wheel {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">🎯 Vòng Quay May Mắn</h1>
+        <p class="game-subtitle">Quay để thu thập mã giảm giá hấp dẫn!</p>
+        
+        <div style="background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; padding: 10px 20px; border-radius: 25px; margin: 15px 0; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+            ⚠️ MỖI NGƯỜI CHỈ ĐƯỢC QUAY 1 LẦN DUY NHẤT!
+        </div>
+        
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <div class="wheel" id="wheel">
+                <!-- Các segment sẽ được tạo bằng JavaScript -->
+            </div>
+            <div class="wheel-center">QUAY<br>NGAY</div>
+        </div>
+        
+        <button class="spin-button" id="spinBtn" onclick="spinWheel()">
+            🎲 QUAY NGAY
+        </button>
+        
+        <div class="result-container">
+            <div class="result-title">🎉 Kết quả</div>
+            <div class="result-content" id="result">
+                Nhấn nút "QUAY NGAY" để bắt đầu!
+            </div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-value" id="totalSpins">0</div>
+                <div class="stat-label">Lượt quay</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalCoupons">0</div>
+                <div class="stat-label">Mã giảm giá</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalValue">0₫</div>
+                <div class="stat-label">Tổng giá trị</div>
+            </div>
+        </div>
+        
+        <div class="collected-coupons">
+            <h3>📋 Mã giảm giá đã thu thập:</h3>
+            <div id="couponList"></div>
+        </div>
+        
+        <!-- Nút reset ẩn cho admin - nhấn Ctrl+Shift+R -->
+        <div style="margin-top: 20px; font-size: 0.8rem; color: #999; text-align: center;">
+            Admin: Nhấn Ctrl+Shift+R để reset
+        </div>
+    </div>
+
+    <script>
+        // Cấu hình các phần thưởng và xác suất
+        const prizes = [
+            { 
+                id: 1, 
+                name: 'Giảm 50%', 
+                code: 'SAVE50', 
+                value: 500000, 
+                probability: 0.05, 
+                color: '#e74c3c',
+                description: 'Giảm 50% đơn hàng tối đa 500k'
+            },
+            { 
+                id: 2, 
+                name: 'Giảm 30%', 
+                code: 'SAVE30', 
+                value: 300000, 
+                probability: 0.10, 
+                color: '#f39c12',
+                description: 'Giảm 30% đơn hàng tối đa 300k'
+            },
+            { 
+                id: 3, 
+                name: 'Giảm 20%', 
+                code: 'SAVE20', 
+                value: 200000, 
+                probability: 0.15, 
+                color: '#3498db',
+                description: 'Giảm 20% đơn hàng tối đa 200k'
+            },
+            { 
+                id: 4, 
+                name: 'Freeship', 
+                code: 'FREESHIP', 
+                value: 50000, 
+                probability: 0.25, 
+                color: '#2ecc71',
+                description: 'Miễn phí vận chuyển toàn quốc'
+            },
+            { 
+                id: 5, 
+                name: 'Giảm 100k', 
+                code: 'SAVE100K', 
+                value: 100000, 
+                probability: 0.20, 
+                color: '#9b59b6',
+                description: 'Giảm 100k cho đơn hàng từ 500k'
+            },
+            { 
+                id: 6, 
+                name: 'Giảm 50k', 
+                code: 'SAVE50K', 
+                value: 50000, 
+                probability: 0.15, 
+                color: '#34495e',
+                description: 'Giảm 50k cho đơn hàng từ 300k'
+            },
+            { 
+                id: 7, 
+                name: 'Chúc may mắn', 
+                code: '', 
+                value: 0, 
+                probability: 0.10, 
+                color: '#95a5a6',
+                description: 'Chúc bạn may mắn lần sau!'
+            }
+        ];
+
+        let isSpinning = false;
+        let totalSpins = 0;
+        let collectedCoupons = [];
+        let totalValue = 0;
+        let hasSpun = false;
+        let currentRotation = 0; // Theo dõi góc quay hiện tại
+
+        // Kiểm tra trạng thái đã quay
+        function checkSpinStatus() {
+            // const spinData = JSON.parse(localStorage.getItem('wheelSpinData') || '{}');
+            const spinData = "{}"
+            if (spinData.hasSpun) {
+                hasSpun = true;
+                totalSpins = 1;
+                collectedCoupons = spinData.coupons || [];
+                totalValue = spinData.totalValue || 0;
+                
+                // Vô hiệu hóa nút quay
+                const spinBtn = document.getElementById('spinBtn');
+                spinBtn.disabled = true;
+                spinBtn.textContent = '✅ ĐÃ QUAY RỒI';
+                spinBtn.style.background = '#95a5a6';
+                
+                // Hiển thị kết quả đã lưu
+                if (spinData.lastResult) {
+                    showPreviousResult(spinData.lastResult);
+                }
+                
+                updateStats();
+                updateCouponList();
+            }
+        }
+
+        // Lưu kết quả quay
+        function saveSpinResult(prize) {
+            const spinData = {
+                hasSpun: true,
+                timestamp: new Date().toISOString(),
+                lastResult: prize,
+                coupons: collectedCoupons,
+                totalValue: totalValue
+            };
+            localStorage.setItem('wheelSpinData', JSON.stringify(spinData));
+        }
+
+        // Hiển thị kết quả đã lưu
+        function showPreviousResult(prize) {
+            const resultDiv = document.getElementById('result');
+            
+            if (prize.code) {
+                resultDiv.innerHTML = `
+                    <div style="font-size: 1.5rem; color: #27ae60; margin-bottom: 10px;">
+                        ✅ Bạn đã quay và trúng!
+                    </div>
+                    <div class="coupon-code">${prize.code}</div>
+                    <div style="margin-top: 10px; color: #666;">
+                        ${prize.description}
+                    </div>
+                    <div style="margin-top: 15px; color: #999; font-size: 0.9rem;">
+                        🕒 Bạn đã sử dụng hết lượt quay duy nhất
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div style="font-size: 1.3rem; color: #95a5a6; margin-bottom: 10px;">
+                        😔 ${prize.description}
+                    </div>
+                    <div style="margin-top: 15px; color: #999; font-size: 0.9rem;">
+                        🕒 Bạn đã sử dụng hết lượt quay duy nhất
+                    </div>
+                `;
+            }
+        }
+
+        function createWheel() {
+            const wheel = document.getElementById('wheel');
+            const segmentAngle = 360 / prizes.length;
+            
+            // Xóa tất cả segment cũ
+            wheel.innerHTML = '';
+            
+            console.log('=== WHEEL SETUP ===');
+            console.log('Total segments:', prizes.length);
+            console.log('Segment angle:', segmentAngle);
+            
+            prizes.forEach((prize, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'wheel-segment';
+                segment.style.backgroundColor = prize.color;
+                
+                // Tính góc xoay cho từng segment
+                // Thêm một chút điều chỉnh để loại bỏ khoảng trống
+                const rotation = index * segmentAngle;
+                segment.style.transform = `rotate(${rotation}deg)`;
+                
+                // Đảm bảo các segment có cùng kích thước và vị trí
+                segment.style.position = 'absolute';
+                segment.style.top = '50%';
+                segment.style.left = '50%';
+                segment.style.transformOrigin = '0 0';
+                segment.style.width = '50.5%';
+                segment.style.height = '50.5%';
+                
+                const content = document.createElement('div');
+                content.className = 'segment-content';
+                content.innerHTML = `
+                    <div style="font-size: 13px; font-weight: bold; margin-bottom: 3px; white-space: nowrap;">${prize.name}</div>
+                    <div style="font-size: 11px; opacity: 0.9; white-space: nowrap;">${prize.code || '😔'}</div>
+                `;
+                
+                segment.appendChild(content);
+                wheel.appendChild(segment);
+                
+                // Debug: In thông tin từng segment
+                const startAngle = rotation;
+                const endAngle = rotation + segmentAngle;
+                const middleAngle = rotation + (segmentAngle / 2);
+                console.log(`Segment ${index} (${prize.name}): ${startAngle}° - ${endAngle}° (middle: ${middleAngle}°)`);
+            });
+            
+            console.log('Pointer position: 0° (3h position)');
+            console.log('==================');
+        }
+
+        // Chọn giải thưởng dựa trên xác suất
+        function selectPrize() {
+            const random = Math.random();
+            let cumulativeProbability = 0;
+            
+            for (const prize of prizes) {
+                cumulativeProbability += prize.probability;
+                if (random <= cumulativeProbability) {
+                    return prize;
+                }
+            }
+            
+            return prizes[prizes.length - 1];
+        }
+
+        // Quay vòng - ĐÃ SỬA CHÍNH XÁC
+        function spinWheel() {
+            if (hasSpun) {
+                alert('⚠️ Bạn đã sử dụng hết lượt quay duy nhất!');
+                return;
+            }
+            
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            hasSpun = true;
+            
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+            spinBtn.textContent = '🔄 ĐANG QUAY...';
+            
+            // Chọn giải thưởng
+            const selectedPrize = selectPrize();
+            const prizeIndex = prizes.findIndex(p => p.id === selectedPrize.id);
+            
+            // Tính toán góc quay chính xác
+            const segmentAngle = 360 / prizes.length; // ~51.43 độ cho 7 segment
+            
+            // Góc của segment được chọn (tính từ 12h theo chiều kim đồng hồ)
+            // Segment 0 ở vị trí từ 0 đến segmentAngle
+            // Giữa segment 0 ở vị trí segmentAngle/2
+            const segmentMiddleAngle = (prizeIndex * segmentAngle) + (segmentAngle / 2);
+            
+            // Để kim (ở vị trí 3h = 0 độ) chỉ vào giữa segment
+            // Ta cần quay vòng sao cho giữa segment về vị trí 0 độ
+            // Vì vòng quay theo chiều ngược kim đồng hồ nên ta dùng dấu âm
+            const targetRotation = -segmentMiddleAngle;
+            
+            // Thêm nhiều vòng quay để tạo hiệu ứng
+            const extraSpins = 5 + Math.random() * 3; // 5-8 vòng
+            const finalRotation = currentRotation + (extraSpins * 360) + targetRotation;
+            
+            // Cập nhật góc quay hiện tại
+            currentRotation = finalRotation % 360;
+            
+            // Quay vòng
+            const wheel = document.getElementById('wheel');
+            wheel.style.transform = `rotate(${finalRotation}deg)`;
+            
+            console.log('=== SPIN DEBUG ===');
+            console.log('Selected prize:', selectedPrize.name);
+            console.log('Prize index:', prizeIndex);
+            console.log('Segment angle:', segmentAngle);
+            console.log('Segment middle angle:', segmentMiddleAngle);
+            console.log('Target rotation:', targetRotation);
+            console.log('Final rotation:', finalRotation);
+            console.log('==================');
+            
+            // Hiển thị kết quả sau khi quay xong
+            setTimeout(() => {
+                showResult(selectedPrize);
+                saveSpinResult(selectedPrize);
+                updateStats();
+                isSpinning = false;
+                
+                // Vô hiệu hóa vĩnh viễn
+                spinBtn.textContent = '✅ ĐÃ QUAY RỒI';
+                spinBtn.style.background = '#95a5a6';
+                spinBtn.style.cursor = 'not-allowed';
+            }, 4000);
+        }
+
+        // Hiển thị kết quả
+        function showResult(prize) {
+            const resultDiv = document.getElementById('result');
+            
+            if (prize.code) {
+                resultDiv.innerHTML = `
+                    <div style="font-size: 1.5rem; color: #e74c3c; margin-bottom: 10px;">
+                        🎉 Chúc mừng bạn đã trúng!
+                    </div>
+                    <div class="coupon-code">${prize.code}</div>
+                    <div style="margin-top: 10px; color: #666;">
+                        ${prize.description}
+                    </div>
+                    <div style="margin-top: 15px; color: #999; font-size: 0.9rem;">
+                        🕒 Đây là lượt quay duy nhất của bạn
+                    </div>
+                `;
+                
+                collectedCoupons.push({
+                    ...prize,
+                    timestamp: new Date().toLocaleString('vi-VN')
+                });
+                
+                totalValue += prize.value;
+                updateCouponList();
+                showCelebration();
+            } else {
+                resultDiv.innerHTML = `
+                    <div style="font-size: 1.3rem; color: #95a5a6; margin-bottom: 10px;">
+                        😔 ${prize.description}
+                    </div>
+                    <div style="margin-top: 15px; color: #999; font-size: 0.9rem;">
+                        🕒 Đây là lượt quay duy nhất của bạn
+                    </div>
+                `;
+            }
+            
+            resultDiv.classList.add('pulse');
+            setTimeout(() => {
+                resultDiv.classList.remove('pulse');
+            }, 500);
+        }
+
+        // Cập nhật thống kê
+        function updateStats() {
+            document.getElementById('totalSpins').textContent = hasSpun ? 1 : 0;
+            document.getElementById('totalCoupons').textContent = collectedCoupons.length;
+            document.getElementById('totalValue').textContent = totalValue.toLocaleString('vi-VN') + '₫';
+        }
+
+        // Cập nhật danh sách mã giảm giá
+        function updateCouponList() {
+            const couponList = document.getElementById('couponList');
+            
+            if (collectedCoupons.length === 0) {
+                couponList.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có mã giảm giá nào</p>';
+                return;
+            }
+            
+            couponList.innerHTML = collectedCoupons
+                .slice()
+                .reverse()
+                .map(coupon => `
+                    <div class="coupon-item">
+                        <strong>${coupon.name}</strong> - <code>${coupon.code}</code>
+                        <br>
+                        <small>${coupon.description}</small>
+                        <br>
+                        <small style="color: #999;">Thời gian: ${coupon.timestamp}</small>
+                    </div>
+                `).join('');
+        }
+
+        // Hiệu ứng ăn mừng
+        function showCelebration() {
+            const celebrations = ['🎉', '🎊', '✨', '🎈', '🎁'];
+            
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const celebration = document.createElement('div');
+                    celebration.className = 'animation-effect';
+                    celebration.textContent = celebrations[Math.floor(Math.random() * celebrations.length)];
+                    celebration.style.left = Math.random() * window.innerWidth + 'px';
+                    celebration.style.top = Math.random() * window.innerHeight + 'px';
+                    
+                    document.body.appendChild(celebration);
+                    
+                    setTimeout(() => {
+                        celebration.remove();
+                    }, 2000);
+                }, i * 100);
+            }
+        }
+
+        // Khởi tạo game
+        function initGame() {
+            createWheel();
+            checkSpinStatus();
+            updateCouponList();
+            updateStats();
+            
+            // Event listeners
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && !isSpinning && !hasSpun) {
+                    e.preventDefault();
+                    spinWheel();
+                }
+                
+                // Admin reset: Ctrl+Shift+R
+                if (e.ctrlKey && e.shiftKey && e.code === 'KeyR') {
+                    e.preventDefault();
+                    if (confirm('🔧 ADMIN: Reset trạng thái game?')) {
+                        localStorage.removeItem('wheelSpinData');
+                        location.reload();
+                    }
+                }
+            });
+        }
+
+        // Bắt đầu game khi trang được tải
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
